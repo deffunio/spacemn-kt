@@ -1,9 +1,30 @@
 micronaut:
   security:
+    authentication: cookie
     oauth2:
-      clients:
-        default:
-          client-id: ${OAUTH_CLIENT_ID:XXX}
-          client-secret: ${OAUTH_CLIENT_SECRET:YYY}
-          openid:
-            issuer: ${OAUTH_ISSUER}
+      callback-uri: '${OAUTH_CALLBACK_BASE_URI:``}/{provider}'
+    endpoints:
+      logout:
+        get-allowed: true
+    intercept-url-map:
+      - pattern: "/graphql"
+        httpMethod: GET
+        access:
+          - isAnonymous()
+      - pattern: "/graphql"
+        httpMethod: POST
+        access:
+          - isAnonymous()
+      - pattern: "/graphiql"
+        httpMethod: GET
+        access:
+          - isAnonymous()
+      - pattern: "/metadata"
+        httpMethod: PUT
+        access:
+          - isAnonymous()
+      - pattern: "/metadata/add_oauth"
+        httpMethod: POST
+        access:
+          - isAnonymous()
+api.id: ${API_ID}
