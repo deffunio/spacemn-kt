@@ -25,13 +25,14 @@ jobs:
         uses: yc-actions/yc-cr-login@v1
         with:
           yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-          
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
       - name: Build, tag, and push image to Yandex Cloud Container Registry
         run: |
-          chmod +x gradlew && ./gradlew dockerBuild 
+          ./gradlew dockerBuild 
           docker tag $CR_REPO cr.yandex/$CR_REGISTRY/$CR_REPO:$IMAGE_TAG
           docker push cr.yandex/$CR_REGISTRY/$CR_REPO:$IMAGE_TAG
         env:
-          CR_REGISTRY: crp9kc1les8vhkp2ggfc
+          CR_REGISTRY: ${{ env.YC_CONTAINER_REGISTRY_ID }}
           CR_REPO: spacemn-kt
           IMAGE_TAG: ${{ github.sha }}
