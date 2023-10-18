@@ -1,0 +1,37 @@
+name: deploy to Yandex Cloud
+
+on:
+  push:
+    branches:
+      - main
+      
+concurrency: development
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          
+      - name: Yandex Cloud CR "Login" Action for GitHub Actions
+        uses: yc-actions/yc-cr-login@v1
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+          
+      - name: Build, tag, and push image to Yandex Cloud Container Registry
+        run: |
+          chmod +x gradlew && ./gradlew dockerBuild 
+          docker tag $CR_REPO cr.yandex/$CR_REGISTRY/$CR_REPO:$IMAGE_TAG
+          docker push cr.yandex/$CR_REGISTRY/$CR_REPO:$IMAGE_TAG
+        env:
+          CR_REGISTRY: crp9kc1les8vhkp2ggfc
+          CR_REPO: spacemn-kt
+          IMAGE_TAG: ${{ github.sha }}
