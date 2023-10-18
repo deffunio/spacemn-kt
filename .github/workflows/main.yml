@@ -22,14 +22,15 @@ jobs:
           distribution: 'temurin'
           
       - name: Yandex Cloud CR "Login" Action for GitHub Actions
-        uses: yc-actions/yc-cr-login@v0.1-alpha
+        uses: yc-actions/yc-cr-login@v1
         with:
           yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
 
       # chmod +x gradlew, чтобы предоставить исполняемые права скрипту gradlew, если они не установлены
       - name: Build, tag, and push image to Yandex Cloud Container Registry
         run: |
-          chmod +x gradlew && ./gradlew dockerBuild -t cr.yandex/$CR_REGISTRY/$CR_REPO:$IMAGE_TAG . 
+          chmod +x gradlew && ./gradlew dockerBuild 
+          docker tag $CR_REPO \ cr.yandex/$CR_REGISTRY/$CR_REPO:$IMAGE_TAG . 
           docker push cr.yandex/$CR_REGISTRY/$CR_REPO:$IMAGE_TAG
         env:
           CR_REGISTRY: crp9kc1les8vhkp2ggfc
