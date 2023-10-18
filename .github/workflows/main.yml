@@ -33,6 +33,6 @@ jobs:
           docker tag $CR_REPO cr.yandex/$CR_REGISTRY/$CR_REPO:$IMAGE_TAG
           docker push cr.yandex/$CR_REGISTRY/$CR_REPO:$IMAGE_TAG
         env:
-          CR_REGISTRY: ${{ env.YC_CONTAINER_REGISTRY_ID }}
+          CR_REGISTRY: $YC_CONTAINER_REGISTRY_ID
           CR_REPO: spacemn-kt
           IMAGE_TAG: ${{ github.sha }}
