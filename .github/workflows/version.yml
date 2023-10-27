@@ -10,6 +10,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        
+      - name: Set up Git
+        run: |
+          git config user.email "alexiv.04@mail.ru"
+          git config user.name "Auto-generated"
 
       - name: Get the current version
         id: get_version
