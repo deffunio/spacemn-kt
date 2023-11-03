@@ -1,7 +1,7 @@
 name: Create Release Branch and Pull Request
 
 on:
-  workflow_dispatch: # Триггер для выполнения вручную
+  workflow_dispatch:
 
 jobs:
   create-release-branch-and-PR:
@@ -43,7 +43,7 @@ jobs:
         id: create_new_branch
         run: |
           NEW_VERSION=${{ steps.increment_version.outputs.new_version }}
-          BRANCH_NAME="release/v-$NEW_VERSION"
+          BRANCH_NAME="release/v$NEW_VERSION"
           git branch $BRANCH_NAME
           git add build.gradle.kts
           git commit -m "Bump version to $NEW_VERSION"
