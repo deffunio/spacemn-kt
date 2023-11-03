@@ -1,0 +1,61 @@
+name: Create Release Branch and Pull Request
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-release-branch-and-PR:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+        
+      - name: Set up Git
+        run: |
+          git config --local user.email "alexiv.04@mail.ru"
+          git config --local user.name "Auto-generated"
+
+      - name: Get the current version
+        id: get_version
+        run: |
+          VERSION=$(./gradlew properties -q | awk '/^version:/ {print $2}')
+          echo "::set-output name=version::$VERSION"
+        shell: bash
+      
+      - name: Increment the version
+        id: increment_version
+        run: |
+          CURRENT_VERSION=${{ steps.get_version.outputs.version }}
+          NEW_VERSION=$(echo "$CURRENT_VERSION + 0.1" | bc)
+          NEW_VERSION=$(printf "%.1f" $NEW_VERSION)
+          sed -i "s/version = \"$CURRENT_VERSION\"/version = \"$NEW_VERSION\"/g" build.gradle.kts
+          echo "::set-output name=new_version::$NEW_VERSION"
+        shell: bash
+
+      - name: Create a new branch
+        id: create_new_branch
+        run: |
+          NEW_VERSION=${{ steps.increment_version.outputs.new_version }}
+          BRANCH_NAME="release/v$NEW_VERSION"
+          git branch $BRANCH_NAME
+          git add build.gradle.kts
+          git commit -m "Bump version to $NEW_VERSION"
+          git push origin $BRANCH_NAME
+          echo "::set-output name=branch_name::$BRANCH_NAME"
+        shell: bash
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          #token: ${{ secrets.TOKEN }}
+          base: "main"
+          branch: ${{ steps.create_new_branch.outputs.branch_name }}
+          title: "Release ${{ steps.create_new_branch.outputs.branch_name }}"
+          body: "Auto-generated pull request for release"
